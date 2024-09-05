@@ -2,14 +2,14 @@ import "reflect-metadata";
 import { Server } from "http";
 import { TYPES } from "./types";
 import { json } from "body-parser";
+import { ILogger } from "./logger";
+import { IMongooseService } from "./db";
+import { IExeptionFilter } from "./error";
+import { IConfigService } from "./common";
 import express, { Express } from "express";
+import { UserController } from "./moduls/user";
 import { inject, injectable } from "inversify";
-import { ILogger } from "./logger/logger.interface";
-import { UserController } from "./models/user/user.controller";
-import { IMongooseService } from "./db/mongoose.service.interface";
-import { IExeptionFilter } from "./error/exeption.filter.interface";
-import { AuthMiddleware } from "./common/middlewares/auth.middleware";
-import { IConfigService } from "./common/config/config.service.interface";
+import { BookController } from "./moduls/books";
 
 @injectable()
 export class App {
@@ -20,9 +20,10 @@ export class App {
 	constructor(
 		@inject(TYPES.ILogger) private logger: ILogger,
 		@inject(TYPES.ConfigService) private configService: IConfigService,
+		@inject(TYPES.BookController) private bookController: BookController,
 		@inject(TYPES.UserController) private userController: UserController,
-		@inject(TYPES.ExceptionFilter) private exeptionFilter: IExeptionFilter,
-		@inject(TYPES.MongooseService) private mongoService: IMongooseService
+		@inject(TYPES.MongooseService) private mongoService: IMongooseService,
+		@inject(TYPES.ExceptionFilter) private exeptionFilter: IExeptionFilter
 	) {
 		this.app = express();
 		this.port = this.configService.get("PORT") || 9000;
@@ -35,6 +36,7 @@ export class App {
 	}
 
 	useRoute(): void {
+		this.app.use("/book", this.bookController.router);
 		this.app.use("/user", this.userController.router);
 	}
 

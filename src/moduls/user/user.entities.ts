@@ -32,6 +32,7 @@ export class User {
 	public async comparePassword(pass: string): Promise<boolean> {
 		return compare(pass, this._password);
 	}
+	// from _pass to password for mongoose 
 
 	public toPlainObject() {
 		return {

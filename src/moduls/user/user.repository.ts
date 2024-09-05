@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { UserModel, IUser } from "./user.shema";
-import { IUserRepository } from "./interfaces/user.repository.interface";
+import { IUserRepository } from "./index";
+import { UserModel, IUser } from "./user.model";
 
 @injectable()
 export class UserRepository implements IUserRepository {

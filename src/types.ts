@@ -1,14 +1,15 @@
 import { Response } from "express";
 
 export const TYPES = {
-	Application: Symbol.for("Application"),
 	ILogger: Symbol.for("ILogger"),
-	UserController: Symbol.for("UserController"),
-	ExceptionFilter: Symbol.for("ExceptionFilter"),
+	Application: Symbol.for("Application"),
 	UserService: Symbol.for("UserService"),
 	ConfigService: Symbol.for("ConfigService"),
-	MongooseService: Symbol.for("MongooseService"),
 	UserRepository: Symbol.for("UserRepository"),
+	BookController: Symbol.for("BookController"),
+	UserController: Symbol.for("UserController"),
+	MongooseService: Symbol.for("MongooseService"),
+	ExceptionFilter: Symbol.for("ExceptionFilter"),
 };
 
 export type ExpressReturnType = Response<any, Record<string, any>>;
