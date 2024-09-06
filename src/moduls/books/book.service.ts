@@ -19,9 +19,9 @@ export class BookService implements IBookService {
 		if (book) return book;
 		return null;
 	}
-	async prepareSearchedBook(query: string): Promise<Array<ISingleBook> | null> {
-		const books = await this.bookRepository.fetchSearchedBook(query);
-		if (books) return books;
+	async prepareSearchedBook(query: string, page: number, booksPerPage: number):Promise<{ total: number; books: Array<ISingleBook> } | null> {
+		const hello = await this.bookRepository.fetchSearchedBook(query, page, booksPerPage);
+		if (hello?.books) return{ total : hello.total , books : hello?.books};
 		return null;
 	}
 }

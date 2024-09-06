@@ -27,7 +27,7 @@ export class BookController extends BaseController implements IBookController {
 				middleware: [],
 			},
 			{
-				path: "/search/:query",
+				path: "/search/:query/:page?",
 				method: "get",
 				function: this.getSearchedBook,
 				middleware: [],
@@ -65,14 +65,24 @@ export class BookController extends BaseController implements IBookController {
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
-		let { query } = req.params;
+		let { query, page } = req.params;
+		const currentPage = page ? parseInt(page) : 1;
+		const booksPerPage = 10;
 
 		if (query) {
-			const books = await this.bookService.prepareSearchedBook(query);
-			if (!books) {
+			const hello = await this.bookService.prepareSearchedBook(
+				query,
+				currentPage,
+				booksPerPage
+			);
+			if (!hello?.books) {
 				return next(new HTTPError(404, "Book not found", "getSearchedBook"));
 			}
-			this.ok(res, books);
-		} else null;
+			this.ok(res, { total : hello?.total, books :hello?.books });
+		} else {
+			return next(
+				new HTTPError(400, "Query parameter is required", "getSearchedBook")
+			);
+		}
 	}
 }
