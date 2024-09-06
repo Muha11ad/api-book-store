@@ -38,8 +38,6 @@ export class UserController extends BaseController implements IUserController {
 		next: NextFunction
 	): Promise<void> {
 		const result = await this.userService.validateUser(req.body);
-		console.log(req.body);
-		console.log(result);
 
 		if (!result) {
 			return next(new HTTPError(401, "Cannot find user", "login"));

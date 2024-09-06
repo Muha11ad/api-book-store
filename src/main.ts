@@ -5,8 +5,8 @@ import { LoggerService, ILogger } from "./logger";
 import { IConfigService,ConfigService } from "./common";
 import { IMongooseService,MongooseService } from "./db";
 import { IExeptionFilter,ExeptionFilter } from "./error";
-import { IBookController, BookController } from "./moduls/books";
 import { Container, ContainerModule, interfaces } from "inversify";
+import { IBookController, BookController, IBookRepository, BookRepository, IBookService, BookService } from "./moduls/books";
 import { UserRepository, UserService, UserController,  IUserController, IUserService, IUserRepository } from "./moduls/user";
 
 export interface IBootstrapReturn {
@@ -18,10 +18,12 @@ const appBindings = new ContainerModule((bind: interfaces.Bind) => {
 	try {
 		bind<App>(TYPES.Application).to(App);
 		bind<IUserService>(TYPES.UserService).to(UserService);
+		bind<IBookService>(TYPES.BookService).to(BookService);
 		bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 		bind<IUserController>(TYPES.UserController).to(UserController);
 		bind<IBookController>(TYPES.BookController).to(BookController);
 		bind<IExeptionFilter>(TYPES.ExceptionFilter).to(ExeptionFilter);
+		bind<IBookRepository>(TYPES.BookRepository).to(BookRepository);
 		bind<ILogger>(TYPES.ILogger).to(LoggerService).inSingletonScope();
 		bind<IConfigService>(TYPES.ConfigService).to(ConfigService).inSingletonScope();
 		bind<IMongooseService>(TYPES.MongooseService).to(MongooseService).inSingletonScope();

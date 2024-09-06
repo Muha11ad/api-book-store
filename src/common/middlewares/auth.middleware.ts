@@ -7,26 +7,23 @@ export class AuthMiddleware implements IMiddleware {
 
 	execute(request: Request, response: Response, next: NextFunction): void {
 		try {
-			if (request.headers.authorization) {
-				verify(
-					request.headers.authorization.split(" ")[1],
-					this.secret,
-					(error, payload) => {
-						if (error) {
-							response.status(401).json({ message: "Invalid token" });
-							return;
-						} else if (payload) {
-							if (typeof payload !== "string" && payload.email) {
-								request.user = payload.email;
-								next();
-							} else {
-								response.status(401).json({ message: "Invalid token payload" });
-							}
+			const token = request.headers['token'] as string;
+			if (token) {
+				verify(token, this.secret, (error: any, payload: any) => {
+					if (error) {
+						response.status(401).json({ message: "Invalid token" });
+						return;
+					} else if (payload) {
+						if (typeof payload !== "string" && payload.email) {
+							request.user = payload.email; 
+							next(); 
+						} else {
+							response.status(401).json({ message: "Invalid token payload" });
 						}
 					}
-				);
+				});
 			} else {
-				response.status(401).json({ message: "Authorization header missing" });
+				response.status(401).json({ message: "Token missing" });
 			}
 		} catch (error) {
 			response.status(500).json({ message: "Server error" });
