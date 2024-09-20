@@ -1,16 +1,16 @@
-export { UserController } from "./user.controller";
-export { IUserController } from "./interfaces/user.controller.inteface";
+export { UserController } from "./controllers/user.controller";
+export { IUserController } from "./controllers/user.controller.inteface";
 
-export { UserService } from "./user.service";
-export { IUserService } from "./interfaces/user.service.interface";
+export { UserService } from "./services/user.service";
+export { IUserService } from "./services/user.service.interface";
 
-export { UserRepository } from "./user.repository";
-export { IUserRepository } from "./interfaces/user.repository.interface";
+export { UserRepository } from "./repositories/user.repository";
+export { IUserRepository } from "./repositories/user.repository.interface";
 
 export { UserRegisterDto } from "./dto/user-register.dto";
 
 export { UserLoginDto } from "./dto/user-login.dto";
 
-export { User } from "./user.entities";
+export { User } from "./entities/user.entities";
 
-export * from "./user.model";
+export * from "./model/user.model";

@@ -1,4 +1,4 @@
-import { ISingleBook } from "./book.interface";
+import { ISingleBook } from "../interfaces/book.interface";
 
 export class IBookService {
 	prepareAllBooks: () => Promise<Array<ISingleBook> | null>;

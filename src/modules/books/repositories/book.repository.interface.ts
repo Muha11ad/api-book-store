@@ -1,4 +1,4 @@
-import { ISingleBook } from "./book.interface";
+import { ISingleBook } from "../interfaces/book.interface";
 
 export class IBookRepository {
 	fetchAllBooks: () => Promise<Array<ISingleBook> | null>;

@@ -1,5 +1,4 @@
-import { IUser } from "../user.model";
-import { UserLoginDto, UserRegisterDto } from "../index";
+import { UserLoginDto, UserRegisterDto,IUser } from "../index";
 
 export interface IUserService {
 	validateUser: (dto: UserLoginDto) => Promise<boolean>;

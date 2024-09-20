@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { IBookRepository, ISingleBook, BookModel } from "./index";
+import { IBookRepository, ISingleBook, BookModel } from "../index";
 
 @injectable()
 export class BookRepository implements IBookRepository {

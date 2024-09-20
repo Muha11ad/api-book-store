@@ -1,21 +1,22 @@
-import { TYPES } from "../../types";
-import { User } from "./user.entities";
-import { IConfigService } from "../../common";
+import { TYPES } from "../../../types";
 import { injectable, inject } from "inversify";
-import { IEmailService, IRedisService } from "../../common/services";
-import { IUser, UserModel } from "./user.model";
+import { IConfigService } from "../../../common";
+import { IEmailService, IRedisService } from "../../../common/services";
 import {
+	User,
+	IUser,
+	UserModel,
+	UserLoginDto,
 	IUserService,
 	IUserRepository,
 	UserRegisterDto,
-	UserLoginDto,
-} from "./index";
+} from "../index";
 
 @injectable()
 export class UserService implements IUserService {
 	constructor(
 		@inject(TYPES.RedisServie) private redisService: IRedisService,
-		@inject(TYPES.EmailServie) private emailService : IEmailService,
+		@inject(TYPES.EmailServie) private emailService: IEmailService,
 		@inject(TYPES.ConfigService) private configService: IConfigService,
 		@inject(TYPES.UserRepository) private userRepository: IUserRepository
 	) {}
@@ -40,8 +41,13 @@ export class UserService implements IUserService {
 		// temporarly save
 		const code = Math.floor(Math.random() * 1000000);
 
-		await this.emailService.sendEmail(email, "Vertification code", "Please submit code" , code)
-	
+		await this.emailService.sendEmail(
+			email,
+			"Vertification code",
+			"Please submit code",
+			code
+		);
+
 		await this.redisService.set(
 			code.toString(),
 			JSON.stringify(createdUser),

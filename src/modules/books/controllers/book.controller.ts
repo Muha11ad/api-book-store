@@ -1,10 +1,10 @@
-import { TYPES } from "../../types";
-import { IBookController, IBookService } from "./index";
+import { TYPES } from "../../../types";
+import { HTTPError } from "../../../error";
+import { ILogger } from "../../../logger";
 import { inject, injectable } from "inversify";
-import { ILogger } from "../../logger/logger.service.interface";
+import { BaseController } from "../../../common";
+import { IBookController, IBookService } from "../index";
 import { Request, Response, NextFunction } from "express";
-import { BaseController } from "../../common/base.controller";
-import { HTTPError } from "../../error";
 
 @injectable()
 export class BookController extends BaseController implements IBookController {

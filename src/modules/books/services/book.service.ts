@@ -1,8 +1,8 @@
-import { TYPES } from "../../types";
+import { TYPES } from "../../../types";
 import { injectable, inject } from "inversify";
-import { ISingleBook} from "./interfaces/book.interface";
-import { IBookService } from "./interfaces/book.service.interface";
-import { IBookRepository } from "./interfaces/book.repository.interface";
+import { ISingleBook} from "../interfaces/book.interface";
+import { IBookService } from "./book.service.interface";
+import { IBookRepository } from "../repositories/book.repository.interface";
 
 @injectable()
 export class BookService implements IBookService {

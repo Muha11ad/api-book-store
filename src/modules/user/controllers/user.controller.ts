@@ -1,21 +1,21 @@
 import "reflect-metadata";
-import { TYPES } from "../../types";
 import { sign } from "jsonwebtoken";
-import { HTTPError } from "../../error";
-import { ILogger } from "../../logger";
+import { TYPES } from "../../../types";
+import { HTTPError } from "../../../error";
+import { ILogger } from "../../../logger";
 import { inject, injectable } from "inversify";
 import { Request, NextFunction, Response } from "express";
 import {
 	BaseController,
 	IConfigService,
 	ValidateMiddleware,
-} from "../../common";
+} from "../../../common";
 import {
 	UserLoginDto,
 	UserRegisterDto,
 	IUserController,
 	IUserService,
-} from "./index";
+} from "../index";
 
 @injectable()
 export class UserController extends BaseController implements IUserController {
