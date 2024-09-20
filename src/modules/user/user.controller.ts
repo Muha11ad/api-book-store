@@ -5,9 +5,17 @@ import { HTTPError } from "../../error";
 import { ILogger } from "../../logger";
 import { inject, injectable } from "inversify";
 import { Request, NextFunction, Response } from "express";
-import { BaseController, IConfigService,ValidateMiddleware } from "../../common";
-import { UserLoginDto, UserRegisterDto, IUserController, IUserService,} from "./index";
-
+import {
+	BaseController,
+	IConfigService,
+	ValidateMiddleware,
+} from "../../common";
+import {
+	UserLoginDto,
+	UserRegisterDto,
+	IUserController,
+	IUserService,
+} from "./index";
 
 @injectable()
 export class UserController extends BaseController implements IUserController {
@@ -29,6 +37,11 @@ export class UserController extends BaseController implements IUserController {
 				method: "post",
 				function: this.login,
 				middleware: [new ValidateMiddleware(UserLoginDto)],
+			},
+			{
+				path: "/verifyEmail",
+				method: "post",
+				function: this.verifyEmailAndSave,
 			},
 		]);
 	}
@@ -54,19 +67,35 @@ export class UserController extends BaseController implements IUserController {
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
-		const result = await this.userService.createUser(body);
+		const result = await this.userService.temporarlySaveUser(body);
 		if (!result) {
-			return next(new HTTPError(422, "Такой пользователь уже существует"));
+			this.send(res, 422, "THIS USER ALREADY EXISTS");
+			return;
 		}
-		const token = await this.signJWT(
-			body.email,
-			this.configService.get("SECRET4TOKEN")
-		);
-		this.ok(res, { email: result.email, id: result, token });
+		this.ok(res, "Please verify your email");
 	}
 
 	private async signJWT(email: string, secret: string): Promise<string> {
 		const token = sign({ email }, secret);
 		return token as string;
+	}
+
+	async verifyEmailAndSave(
+		{ body }: Request<{}, {}, { code: number }>,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		const user = await this.userService.verifyEmailAndSaveUser(body.code);
+
+		if (!user) {
+			this.send(res, 422, "Code is invalid");
+			return;
+		}
+		const token = await this.signJWT(
+			user.email,
+			this.configService.get("SECRET4TOKEN")
+		);
+		res.cookie("token", token);
+		this.ok(res, { user, token });
 	}
 }

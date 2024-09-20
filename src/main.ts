@@ -6,8 +6,9 @@ import { IConfigService,ConfigService } from "./common";
 import { IMongooseService,MongooseService } from "./db";
 import { IExeptionFilter,ExeptionFilter } from "./error";
 import { Container, ContainerModule, interfaces } from "inversify";
-import { IBookController, BookController, IBookRepository, BookRepository, IBookService, BookService } from "./moduls/books";
-import { UserRepository, UserService, UserController,  IUserController, IUserService, IUserRepository } from "./moduls/user";
+import { IRedisService, RedisService, IEmailService, EmailService } from "./common/services";
+import { IBookController, BookController, IBookRepository, BookRepository, IBookService, BookService } from "./modules/books";
+import { UserRepository, UserService, UserController,  IUserController, IUserService, IUserRepository } from "./modules/user";
 
 export interface IBootstrapReturn {
 	appContainer: Container;
@@ -17,16 +18,27 @@ export interface IBootstrapReturn {
 const appBindings = new ContainerModule((bind: interfaces.Bind) => {
 	try {
 		bind<App>(TYPES.Application).to(App);
-		bind<IUserService>(TYPES.UserService).to(UserService);
-		bind<IBookService>(TYPES.BookService).to(BookService);
-		bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
-		bind<IUserController>(TYPES.UserController).to(UserController);
-		bind<IBookController>(TYPES.BookController).to(BookController);
+		
 		bind<IExeptionFilter>(TYPES.ExceptionFilter).to(ExeptionFilter);
-		bind<IBookRepository>(TYPES.BookRepository).to(BookRepository);
+		
 		bind<ILogger>(TYPES.ILogger).to(LoggerService).inSingletonScope();
+		
+		//user
+		bind<IUserService>(TYPES.UserService).to(UserService);
+		bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
+		bind<IUserController>(TYPES.UserController).to(UserController).inSingletonScope();
+		
+		//book
+		bind<IBookService>(TYPES.BookService).to(BookService);
+		bind<IBookController>(TYPES.BookController).to(BookController);
+		bind<IBookRepository>(TYPES.BookRepository).to(BookRepository);
+		
+		//services
+		bind<IEmailService>(TYPES.EmailServie).to(EmailService)
+		bind<IRedisService>(TYPES.RedisServie).to(RedisService)
 		bind<IConfigService>(TYPES.ConfigService).to(ConfigService).inSingletonScope();
 		bind<IMongooseService>(TYPES.MongooseService).to(MongooseService).inSingletonScope();
+
 	} catch (error) {
 		console.log(`error in appBindings :  ${error}`);
 	}

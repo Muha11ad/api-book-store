@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import cors from "cors"; 
+import cors from "cors";
 import { Server } from "http";
 import { TYPES } from "./types";
 import { json } from "body-parser";
@@ -8,9 +8,9 @@ import { IMongooseService } from "./db";
 import { IExeptionFilter } from "./error";
 import { IConfigService } from "./common";
 import express, { Express } from "express";
-import { UserController } from "./moduls/user";
+import { UserController } from "./modules/user";
 import { inject, injectable } from "inversify";
-import { BookController } from "./moduls/books";
+import { BookController } from "./modules/books";
 
 @injectable()
 export class App {
@@ -30,16 +30,14 @@ export class App {
 		this.port = this.configService.get("PORT") || 9000;
 	}
 
-
-	// {
-	// 	origin: "http://localhost:3000/IT-Bookstore/", // Replace with your frontend domain
-	// 	methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
-	// 	credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-	// }
-
-
 	useMiddleware(): void {
-		this.app.use(cors());
+		this.app.use(
+			cors({
+				origin: "http://localhost:3000",
+				methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
+				credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+			})
+		);
 		this.app.use(json());
 		// const authMiddleware = new AuthMiddleware(this.configService.get("SECRET"));
 		// this.app.use(authMiddleware.execute.bind(authMiddleware));
