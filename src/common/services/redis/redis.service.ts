@@ -24,3 +24,4 @@ export class RedisService implements IRedisService {
 		return this.client.get(key);
 	}
 }
+

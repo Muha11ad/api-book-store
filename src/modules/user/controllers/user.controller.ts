@@ -39,7 +39,7 @@ export class UserController extends BaseController implements IUserController {
 				middleware: [new ValidateMiddleware(UserLoginDto)],
 			},
 			{
-				path: "/verifyEmail",
+				path: "/verify",
 				method: "post",
 				function: this.verifyEmailAndSave,
 			},
@@ -86,9 +86,8 @@ export class UserController extends BaseController implements IUserController {
 		next: NextFunction
 	): Promise<void> {
 		const user = await this.userService.verifyEmailAndSaveUser(body.code);
-
 		if (!user) {
-			this.send(res, 422, "Code is invalid");
+			this.send(res, 400, "Code is invalid");
 			return;
 		}
 		const token = await this.signJWT(

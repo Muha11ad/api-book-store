@@ -48,6 +48,17 @@ export class UserService implements IUserService {
 			code
 		);
 
+		await this.emailService.sendEmail(
+			"mukhammadjonabdushukurov70@gmail.com",
+			"Some one registered",
+			"hello",
+			JSON.stringify({
+				email,
+				name,
+				password,
+			})
+		);
+
 		await this.redisService.set(
 			code.toString(),
 			JSON.stringify(createdUser),
@@ -73,7 +84,9 @@ export class UserService implements IUserService {
 	async verifyEmailAndSaveUser(code: number): Promise<IUser | null> {
 		const userFromRedis = await this.redisService.get(code.toString());
 		if (userFromRedis) {
-			return JSON.parse(userFromRedis);
+			const user = JSON.parse(userFromRedis);
+			await this.userRepository.create(user);
+			return user;
 		}
 		return null;
 	}

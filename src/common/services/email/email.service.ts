@@ -15,7 +15,7 @@ export class EmailService implements IEmailService {
 		const smtpOptions: SMTPTransport.Options = {
 			host: "smtp.gmail.com",
 			port: 587,
-			secure: false, 
+			secure: false,
 			auth: {
 				user: this.configService.get("EMAIL_USER") as string,
 				pass: this.configService.get("EMAIL_PASS"),
@@ -29,13 +29,14 @@ export class EmailService implements IEmailService {
 		to: string,
 		subject: string,
 		text: string,
-		code: number
+		code: number | string
 	): Promise<void> {
 		await this.transporter.sendMail({
-			from: this.configService.get("EMAIL_USER") as string, to,
+			from: this.configService.get("EMAIL_USER") as string,
+			to,
 			subject,
 			text,
-			html: `<strong>${code}</strong>`, 
+			html: `<strong>${code}</strong>`,
 		});
 	}
 }
