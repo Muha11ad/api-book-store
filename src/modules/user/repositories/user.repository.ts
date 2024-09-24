@@ -23,4 +23,8 @@ export class UserRepository implements IUserRepository {
 	async deleteById(id: string): Promise<IUser | null> {
 		return UserModel.findByIdAndDelete(id).exec();
 	}
+	async createWithoutPass(data : Partial<IUser>){
+		const newUser = await UserModel.create({name : data.name , email  : data.email, password : null});
+		return newUser;
+	}
 }

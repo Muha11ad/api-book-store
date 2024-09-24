@@ -2,15 +2,16 @@ import "reflect-metadata";
 import cors from "cors";
 import { Server } from "http";
 import { TYPES } from "./types";
+import passport  from 'passport';
 import { json } from "body-parser";
 import { ILogger } from "./logger";
 import { IMongooseService } from "./db";
 import { IExeptionFilter } from "./error";
 import { IConfigService } from "./common";
 import express, { Express } from "express";
-import { UserController } from "./modules/user";
 import { inject, injectable } from "inversify";
 import { BookController } from "./modules/books";
+import { UserController, AuthController } from "./modules/user";
 
 @injectable()
 export class App {
@@ -23,6 +24,7 @@ export class App {
 		@inject(TYPES.ConfigService) private configService: IConfigService,
 		@inject(TYPES.BookController) private bookController: BookController,
 		@inject(TYPES.UserController) private userController: UserController,
+		@inject(TYPES.AuthController) private authController: AuthController,
 		@inject(TYPES.MongooseService) private mongoService: IMongooseService,
 		@inject(TYPES.ExceptionFilter) private exeptionFilter: IExeptionFilter
 	) {
@@ -39,12 +41,14 @@ export class App {
 			})
 		);
 		this.app.use(json());
+		this.app.use(passport.initialize())
 		// const authMiddleware = new AuthMiddleware(this.configService.get("SECRET"));
 		// this.app.use(authMiddleware.execute.bind(authMiddleware));
 	}
 
 	useRoute(): void {
 		this.app.use("/book", this.bookController.router);
+		this.app.use("/auth", this.authController.router);
 		this.app.use("/user", this.userController.router);
 	}
 
