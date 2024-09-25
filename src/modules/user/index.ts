@@ -20,3 +20,4 @@ export { UserLoginDto } from "./dto/user-login.dto";
 export { User } from "./entities/user.entities";
 
 export * from "./model/user.model";
+

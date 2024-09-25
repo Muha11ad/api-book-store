@@ -3,16 +3,16 @@ import { IUserRepository, UserModel, IUser } from "../index";
 
 @injectable()
 export class UserRepository implements IUserRepository {
-	async create(user: IUser): Promise<any> {
+	async create(user: IUser): Promise<IUser> {
 		const newUser = await UserModel.create(user);
-		return newUser.save();
+		return newUser;
 	}
 
-	async findByEmail(email: string): Promise<any | null> {
+	async findByEmail(email: string): Promise<IUser | null> {
 		return UserModel.findOne({ email }).exec();
 	}
 
-	async findById(id: string): Promise<any | null> {
+	async findById(id: string): Promise<IUser | null> {
 		return UserModel.findById(id).exec();
 	}
 
@@ -23,8 +23,8 @@ export class UserRepository implements IUserRepository {
 	async deleteById(id: string): Promise<IUser | null> {
 		return UserModel.findByIdAndDelete(id).exec();
 	}
-	async createWithoutPass(data : Partial<IUser>){
-		const newUser = await UserModel.create({name : data.name , email  : data.email, password : null});
+	async createWithoutPass({ email, name }: IUser): Promise<IUser> {
+		const newUser = await UserModel.create({ name, email, password: null });
 		return newUser;
 	}
 }

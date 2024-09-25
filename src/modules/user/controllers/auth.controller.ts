@@ -45,9 +45,8 @@ export class AuthController extends BaseController implements IAuthController {
 		next: NextFunction
 	): Promise<string | void> {
 		const user = await this.authSerive.googleCallBack(req, res);
-		console.log("controller user : " + user);
 		if (user) {
-			const token = sign(user.email, "SECRET4TOKEN");
+			const token = sign(user.email, this.configService.get("SECRET4TOKEN") as string);
 			res.cookie("token", token);
 
 			return res.redirect("http://localhost:3000/IT-Bookstore/");
