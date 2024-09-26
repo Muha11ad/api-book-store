@@ -5,12 +5,14 @@ import { inject, injectable } from "inversify";
 import { BaseController } from "../../../common";
 import { IBookController, IBookService } from "../index";
 import { Request, Response, NextFunction } from "express";
+import { AuthMiddleware, IConfigService } from "./../../../common";
 
 @injectable()
 export class BookController extends BaseController implements IBookController {
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
-		@inject(TYPES.BookService) private bookService: IBookService
+		@inject(TYPES.BookService) private bookService: IBookService,
+		@inject(TYPES.ConfigService) private configService: IConfigService
 	) {
 		super(loggerService);
 		this.bindRoutes([
@@ -31,6 +33,14 @@ export class BookController extends BaseController implements IBookController {
 				method: "get",
 				function: this.getSearchedBook,
 				middleware: [],
+			},
+			{
+				path: "/order",
+				method: "post",
+				function: this.orderBook,
+				middleware: [
+					new AuthMiddleware(this.configService.get("SECRET4TOKEN")),
+				],
 			},
 		]);
 	}
@@ -78,11 +88,20 @@ export class BookController extends BaseController implements IBookController {
 			if (!hello?.books) {
 				return next(new HTTPError(404, "Book not found", "getSearchedBook"));
 			}
-			this.ok(res, { total : hello?.total, books :hello?.books });
+			this.ok(res, { total: hello?.total, books: hello?.books });
 		} else {
 			return next(
 				new HTTPError(400, "Query parameter is required", "getSearchedBook")
 			);
 		}
+	}
+	async orderBook(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		const { body, user } = req;
+		await this.bookService.prepareOrder(body, user);
+		this.ok(res, "Your order has been accepted");
 	}
 }

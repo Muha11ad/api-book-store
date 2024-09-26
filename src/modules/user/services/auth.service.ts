@@ -1,82 +1,42 @@
-import { IUser } from "..";
 import "reflect-metadata";
 import passport from "passport";
 import { TYPES } from "../../../types";
-import { IUserRepository, IUserDocument } from "../index";
 import { Response, Request } from "express";
 import { inject, injectable } from "inversify";
-import { IConfigService } from "../../../common";
 import { IAuthService } from "./auth.service.interface";
-import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
+import { IUserDocument } from "../index";
+import {
+	IGoogleAuthService,
+	IGithubAuthService,
+} from "./../../../common/services";
 
 @injectable()
 export class AuthService implements IAuthService {
 	constructor(
-		@inject(TYPES.UserRepository) private userRepository: IUserRepository,
-		@inject(TYPES.ConfigService) private configService: IConfigService
+		@inject(TYPES.GoogleAuthSerivice)
+		private googleAuthService: IGoogleAuthService,
+		@inject(TYPES.GithubAuthSerivice)
+		private githubAuthService: IGithubAuthService
 	) {
-		this.initializePassport();
-	}
-	private initializePassport(): void {
-		this.initializeGoogle();
+		this.googleAuthService.initialize();
+		this.githubAuthService.initialize();
 	}
 
-	private async initializeGoogle() {
-		passport.use(
-			new GoogleStrategy(
-				{
-					clientID: this.configService.get("GOOGLE_CLIENT_ID"),
-					clientSecret: this.configService.get("GOOGLE_SECRET_ID"),
-					callbackURL: this.configService.get("GOOGLE_CALLBACK_URL") as string,
-				},
-				async (
-					accessToken: string,
-					refreshToken: string,
-					profile: Profile,
-					done: Function
-				) => {
-					try {
-						const { email, given_name } = profile._json;
-
-						if (!email || !given_name) {
-							return null;
-						}
-						let user: IUser | null = await this.userRepository.findByEmail(
-							email
-						);
-
-						if (!user) {
-							user = await this.userRepository.createWithoutPass({
-								email,
-								name: given_name,
-							});
-						}
-
-						done(null, user);
-					} catch (error) {
-						done(error, null);
-					}
-				}
-			)
-		);
-	}
-
+	// google
 	async googleAuth(req: Request, res: Response): Promise<void> {
 		passport.authenticate("google", { scope: ["email", "profile"] })(req, res);
 	}
 
 	async googleCallBack(req: Request, res: Response): Promise<IUserDocument> {
-		return new Promise((resolve, reject) => {
-			passport.authenticate(
-				"google",
-				{ failureRedirect: "/login" },
-				(err: Error, user: IUserDocument | null, info: Record<string, any>) => {
-					if (err || !user) {
-						return reject(err || "No user found");
-					}
-					resolve(user);
-				}
-			)(req, res);
-		});
+		return await this.googleAuthService.handleCallback(req, res);
+	}
+
+	// github
+	async githubAuth(req: Request, res: Response): Promise<void> {
+		passport.authenticate("github", { scope: ["user:email", "profile"] })(req, res);
+	}
+
+	async githubCallBack(req: Request, res: Response): Promise<IUserDocument> {
+		return await this.githubAuthService.handleCallback(req, res);
 	}
 }

@@ -1,4 +1,11 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
+
+export interface IOrderBook {
+	phone: string;
+	comment: string;
+	address: string;
+	cart: Array<{ isbn13: string }>;
+}
 
 const BookSchema = new Schema({
 	// required

@@ -8,10 +8,13 @@ export const TYPES = {
 	Application: Symbol.for("Application"),
 
 	//services
-	ConfigService: Symbol.for("ConfigService"),
-	MongooseService: Symbol.for("MongooseService"),
 	RedisServie: Symbol.for("RedisService"),
 	EmailServie: Symbol.for("EmailService"),
+	ConfigService: Symbol.for("ConfigService"),
+	MongooseService: Symbol.for("MongooseService"),
+	TelegramSerivice: Symbol.for("TelegramSerivibce"),
+	GithubAuthSerivice: Symbol.for("GithubAuthSerivice"),
+	GoogleAuthSerivice: Symbol.for("GoogleAuthSerivice"),
 
 	ExceptionFilter: Symbol.for("ExceptionFilter"),
 

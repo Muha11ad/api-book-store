@@ -7,10 +7,16 @@ import { IMongooseService, MongooseService } from "./db";
 import { IExeptionFilter, ExeptionFilter } from "./error";
 import { Container, ContainerModule, interfaces } from "inversify";
 import {
-	IRedisService,
 	RedisService,
-	IEmailService,
 	EmailService,
+	TelegramService,
+	GoogleAuthService,
+	GithubAuthService,
+	IEmailService,
+	IRedisService,
+	ITelegramService,
+	IGithubAuthService,
+	IGoogleAuthService,
 } from "./common/services";
 import {
 	IBookController,
@@ -71,6 +77,10 @@ const appBindings = new ContainerModule((bind: interfaces.Bind) => {
 		bind<IMongooseService>(TYPES.MongooseService)
 			.to(MongooseService)
 			.inSingletonScope();
+		bind<IGoogleAuthService>(TYPES.GoogleAuthSerivice).to(GoogleAuthService);
+		bind<IGithubAuthService>(TYPES.GithubAuthSerivice).to(GithubAuthService);
+		bind<ITelegramService>(TYPES.TelegramSerivice).to(TelegramService);
+
 	} catch (error) {
 		console.log(`error in appBindings :  ${error}`);
 	}

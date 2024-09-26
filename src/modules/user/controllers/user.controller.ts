@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 import { TYPES } from "../../../types";
 import { HTTPError } from "../../../error";
 import { ILogger } from "../../../logger";
@@ -43,23 +43,49 @@ export class UserController extends BaseController implements IUserController {
 				method: "post",
 				function: this.verifyEmailAndSave,
 			},
+			{
+				path: "/refreshToken",
+				method: "get",
+				function: this.refreshToken,
+			},
 		]);
 	}
+
 	async login(
 		req: Request<{}, {}, UserLoginDto>,
 		res: Response,
 		next: NextFunction
 	): Promise<void> {
 		const result = await this.userService.validateUser(req.body);
-
 		if (!result) {
 			return next(new HTTPError(401, "Cannot find user", "login"));
 		}
-		const jwt = await this.signJWT(
+
+		const accessToken = await this.signJWT(
 			req.body.email,
-			this.configService.get("SECRET4TOKEN")
+			this.configService.get("SECRET4TOKEN"),
+			"15m"
 		);
-		this.ok(res, { jwt });
+		const refreshToken = await this.signJWT(
+			req.body.email,
+			this.configService.get("SECRET4TOKEN"),
+			"7d"
+		);
+
+		res.cookie("accessToken", accessToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "strict",
+			path: "/",
+		});
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "strict",
+			path: "/",
+		});
+
+		this.ok(res, { message: "Logged in successfully" });
 	}
 
 	async register(
@@ -75,8 +101,8 @@ export class UserController extends BaseController implements IUserController {
 		this.ok(res, "Please verify your email");
 	}
 
-	private async signJWT(email: string, secret: string): Promise<string> {
-		const token = sign({ email }, secret);
+	private async signJWT(email: string, secret: string, expiresIn: string): Promise<string> {
+		const token = sign({ email }, secret, { expiresIn });
 		return token as string;
 	}
 
@@ -90,11 +116,59 @@ export class UserController extends BaseController implements IUserController {
 			this.send(res, 400, "Code is invalid");
 			return;
 		}
-		const token = await this.signJWT(
+
+		const accessToken = await this.signJWT(
 			user.email,
-			this.configService.get("SECRET4TOKEN")
+			this.configService.get("SECRET4TOKEN"),
+			"15m"
 		);
-		res.cookie("token", token);
-		this.ok(res, { user, token });
+		const refreshToken = await this.signJWT(
+			user.email,
+			this.configService.get("SECRET4TOKEN"),
+			"7d"
+		);
+
+		res.cookie("accessToken", accessToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "strict",
+			path: "/",
+		});
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "strict",
+			path: "/",
+		});
+
+		this.ok(res, { user });
+	}
+
+	async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+		const { refreshToken } = req.cookies;
+		if (!refreshToken) {
+			return next(new HTTPError(403, "Refresh token not provided", "refreshToken"));
+		}
+
+		try {
+			const decoded = verify(refreshToken, this.configService.get("SECRET4TOKEN") as string) as {email : string, }
+
+			const newAccessToken = await this.signJWT(
+				decoded.email,
+				this.configService.get("SECRET4TOKEN"),
+				"1h"
+			);
+
+			res.cookie("accessToken", newAccessToken, {
+				httpOnly: true,
+				secure: true,
+				sameSite: "strict",
+				path: "/",
+			});
+
+			this.ok(res, { message: "Access token refreshed" });
+		} catch (error) {
+			return next(new HTTPError(403, "Invalid refresh token", "refreshToken"));
+		}
 	}
 }

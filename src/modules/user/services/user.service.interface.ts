@@ -1,7 +1,7 @@
-import { UserLoginDto, UserRegisterDto,IUser } from "../index";
+import { UserLoginDto, UserRegisterDto, IUserDocument, IUser } from "../index";
 
 export interface IUserService {
 	validateUser: (dto: UserLoginDto) => Promise<boolean>;
-	temporarlySaveUser: (dto: UserRegisterDto) => Promise<IUser | null>;
-	verifyEmailAndSaveUser : (code : number) => Promise<IUser | null>;
+	temporarlySaveUser: (dto: UserRegisterDto) => Promise<IUserDocument | null>;
+	verifyEmailAndSaveUser: (code: number) => Promise<IUser | null>;
 }

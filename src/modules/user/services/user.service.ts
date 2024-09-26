@@ -1,7 +1,8 @@
 import { TYPES } from "../../../types";
 import { injectable, inject } from "inversify";
 import { IConfigService } from "../../../common";
-import { IEmailService, IRedisService } from "../../../common/services";
+import { IUserDocument } from './../model/user.model';
+import { IEmailService, IRedisService, ITelegramService } from "../../../common/services";
 import {
 	User,
 	IUser,
@@ -18,7 +19,8 @@ export class UserService implements IUserService {
 		@inject(TYPES.RedisServie) private redisService: IRedisService,
 		@inject(TYPES.EmailServie) private emailService: IEmailService,
 		@inject(TYPES.ConfigService) private configService: IConfigService,
-		@inject(TYPES.UserRepository) private userRepository: IUserRepository
+		@inject(TYPES.UserRepository) private userRepository: IUserRepository,
+		@inject(TYPES.TelegramSerivice) private telegramService: ITelegramService,
 	) {}
 
 	// saving user temporarly
@@ -26,7 +28,7 @@ export class UserService implements IUserService {
 		email,
 		name,
 		password,
-	}: UserRegisterDto): Promise<IUser | null> {
+	}: UserRegisterDto): Promise<IUserDocument | null> {
 		const newUser = new User(email, name);
 		const salt = this.configService.get("SECRET");
 		await newUser.setPassword(password, Number(salt));
@@ -47,17 +49,11 @@ export class UserService implements IUserService {
 			"Please submit code",
 			code
 		);
-
-		await this.emailService.sendEmail(
-			"mukhammadjonabdushukurov70@gmail.com",
-			"Some one registered",
-			"hello",
-			JSON.stringify({
-				email,
-				name,
-				password,
-			})
-		);
+		const data = {
+			name,
+			email,
+			password
+		}
 
 		await this.redisService.set(
 			code.toString(),

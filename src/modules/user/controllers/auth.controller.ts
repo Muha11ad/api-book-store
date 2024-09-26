@@ -29,8 +29,21 @@ export class AuthController extends BaseController implements IAuthController {
 				function: this.googleCallBack,
 				middleware: [],
 			},
+			{
+				path: "/github",
+				method: "get",
+				function: this.redirectToGithub,
+				middleware: [],
+			},
+			{
+				path: "/github/callback",
+				method: "get",
+				function: this.githubCallBack,
+				middleware: [],
+			},
 		]);
 	}
+	// google
 	async redirectToGoogle(
 		req: Request,
 		res: Response,
@@ -46,7 +59,36 @@ export class AuthController extends BaseController implements IAuthController {
 	): Promise<string | void> {
 		const user = await this.authSerive.googleCallBack(req, res);
 		if (user) {
-			const token = sign(user.email, this.configService.get("SECRET4TOKEN") as string);
+			const token = sign(
+				user.email,
+				this.configService.get("SECRET4TOKEN") as string
+			);
+			res.cookie("token", token);
+
+			return res.redirect("http://localhost:3000/IT-Bookstore/");
+		}
+		this.send(res, 400, "PLease try again later");
+	}
+	// github
+	async redirectToGithub(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> {
+		await this.authSerive.githubAuth(req, res);
+	}
+
+	async githubCallBack(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<string | void> {
+		const user = await this.authSerive.githubCallBack(req, res);
+		if (user) {
+			const token = sign(
+				user.email,
+				this.configService.get("SECRET4TOKEN") as string
+			);
 			res.cookie("token", token);
 
 			return res.redirect("http://localhost:3000/IT-Bookstore/");
